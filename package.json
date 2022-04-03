@@ -19,7 +19,7 @@
     "typescript": "^4.4.3"
   },
   "types": "index.d.ts",
-  "repository": "git://github.com/stefanterdell/react-cron-editor.git",
+  "repository": "git://github.com/stefanterdell/local-ref-resolver.git",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   }
