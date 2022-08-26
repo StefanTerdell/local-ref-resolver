@@ -47,10 +47,21 @@ export const resolveRefs = (
       const bothAreObjects =
         typeof target[targetKey] === "object" && typeof source === "object";
       if (options.merge && bothAreObjects) {
-        target[targetKey] = [
-          ...Object.entries(target[targetKey]),
-          ...Object.entries(source ?? {}),
-        ].reduce(
+        const targetEntries = Object.entries(target[targetKey]);
+        const sourceEntries = Object.entries(source ?? {});
+        const $refIndex = targetEntries.findIndex(([key]) => key === "$ref");
+        const entries =
+          options.merge === "favorTarget"
+            ? [...sourceEntries, ...targetEntries]
+            : options.merge === "favorSource"
+            ? [...targetEntries, ...sourceEntries]
+            : [
+                ...targetEntries.slice(0, $refIndex),
+                ...sourceEntries,
+                ...targetEntries.slice($refIndex),
+              ];
+
+        target[targetKey] = entries.reduce(
           (acc, [key, value]) =>
             key !== "$ref" || options.keepRefs
               ? {
@@ -81,7 +92,7 @@ export const resolveRefs = (
 };
 
 export type Options = {
-  merge?: boolean;
+  merge?: boolean | "favorTarget" | "favorSource";
   keepRefs?: boolean | string;
   unresolvable?: "skip" | "warn" | "throw";
   refFilter?: (ref: [string, string]) => boolean;
@@ -91,7 +102,10 @@ export const localRefResolver = (root: any, options?: Options): any =>
   root
     ? resolveRefs(
         root,
-        findRefs(root, [], "#").filter(options.refFilter ?? (() => true)),
+        findRefs(root, [], "#").filter(
+          options?.refFilter ??
+            (([, source]) => typeof source === "string")
+        ),
         options
       )
     : root;
