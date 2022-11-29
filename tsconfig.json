@@ -1,13 +1,11 @@
 {
   "compilerOptions": {
     "outDir": "dist",
-    "lib": ["DOM", "ES2017"],
-    "target": "es6",
+    "lib": ["ESNext"],
+    "target": "ESNext",
     "declaration": true,
-    "sourceMap": true,
-    "declarationMap": true,
-    "module": "ES6",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "Node",
     "strict": false,
     "skipLibCheck": true,
     "esModuleInterop": true
