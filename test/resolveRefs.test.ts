@@ -1,73 +1,6 @@
-import { findRefs, localRefResolver } from "./localRefResolver";
-import { resolveRefs } from "./localRefResolver";
+import { resolveRefs } from "../src/resolveRefs";
 
-describe("Find Refs", () => {
-  it("Should work with sibling dependencies", () => {
-    const refs = findRefs(
-      {
-        ett: {
-          $ref: "#/två",
-        },
-        två: {
-          $ref: "#/tre",
-        },
-        tre: {
-          succe: true,
-        },
-      },
-      [],
-      "#"
-    );
-
-    expect(refs).toStrictEqual([
-      ["#/ett", "#/tre"],
-      ["#/två", "#/tre"],
-    ]);
-  });
-
-  it("Should work with nested dependencies", () => {
-    const refs = findRefs(
-      {
-        a: {
-          b: {
-            $ref: "#/a/c",
-          },
-          c: {
-            $ref: "#/tre",
-          },
-        },
-        tre: {
-          succe: true,
-        },
-      },
-      [],
-      "#"
-    );
-
-    expect(refs).toStrictEqual([
-      ["#/a/b", "#/tre"],
-      ["#/a/c", "#/tre"],
-    ]);
-  });
-
-  it("Should work with circular dependencies", () => {
-    const refs = findRefs(
-      {
-        a: {
-          b: {
-            $ref: "#",
-          },
-        },
-      },
-      [],
-      "#"
-    );
-
-    expect(refs).toStrictEqual([["#/a/b", "#"]]);
-  });
-});
-
-describe("Resolving refs without mergin", () => {
+describe("Resolving refs without merging", () => {
   it("Should work with sibling dependencies", () => {
     const obj = {
       ett: {
@@ -131,6 +64,17 @@ describe("Resolving refs without mergin", () => {
 
     const itWorks = Object.is(obj.a.b, obj);
     expect(itWorks).toBeTruthy();
+  });
+
+  it.skip("should handle a self-replacing reference", () => {
+    expect(
+      resolveRefs(
+        {
+          x: "hello",
+        },
+        [["#", "#/x"]]
+      )
+    ).toStrictEqual("hello");
   });
 });
 
@@ -234,30 +178,14 @@ describe("Resolving refs with merging", () => {
   });
 });
 
-describe("Local ref resolver", () => {
-  it("Should be possible to filter out references", () => {
-    const obj = {
-      source: {
-        nr: 1,
-      },
-      resolveThis: {
-        $ref: "#/source",
-      },
-      notThis: {
-        $ref: "#/source",
-      },
-    };
-
-    const res = localRefResolver(obj, {
-      refFilter: ([x]) => x.startsWith("#/resolveThis"),
-    });
-
-    expect(res).toStrictEqual({
-      source: { nr: 1 },
-      resolveThis: { nr: 1 },
-      notThis: { $ref: "#/source" },
-    });
+describe("Pre-resolved references", () => {
+  it("x", () => {
+    expect(
+      resolveRefs({ x: null }, [["#/x", "asdf"]], {
+        resolved: {
+          asdf: "hello",
+        },
+      })
+    ).toStrictEqual({ x: "hello" });
   });
 });
-
-const util = require("util");

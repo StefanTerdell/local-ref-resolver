@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "dev": "jest --watch",
+    "test": "npm run build && jest",
+    "dev": "npm run build && jest --watch",
     "build": "rimraf dist && tsc && node copyPackageFiles.js",
     "dryrun": "jest && npm run build && npm pub ./dist/ --dry-run"
   },
